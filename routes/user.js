@@ -1,6 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
 const {  Organization } = require("../models");
+const { Device } = require("../models");
 const { isLoggedIn, isNotLoggedIn } = require("../middlewares/auth");
 const router = express.Router();
 const jwt = require('jsonwebtoken');
@@ -24,6 +25,11 @@ router.post("/signup", isNotLoggedIn, async(req,res,next) => {
       org_phone,
       org_email
     });
+
+    await Device.update(
+      { used: true },
+      { where: { device_code: deviceCode } }
+    );
 
     res.status(201).json({
       message: "회원가입이 완료되었습니다.",

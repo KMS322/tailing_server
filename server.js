@@ -8,7 +8,9 @@ const app = express();
 const userRouter = require("./routes/user");
 const petRouter = require("./routes/pet");
 const deviceRouter = require("./routes/device");
+const dataRouter = require("./routes/data");
 const { InitDevice } = require("./routes/initDevice");
+const {dummyPet} = require("./routes/dummy");
 
 db.sequelize
   .sync()
@@ -38,10 +40,12 @@ app.get("/", (req, res) => {
 });
 
 InitDevice();
+// dummyPet();
 
 app.use("/user", userRouter);
 app.use("/pet", petRouter);
 app.use("/device", deviceRouter);
+app.use("/data", dataRouter);
 // 에러 핸들링 미들웨어는 라우터 다음에 위치해야 합니다
 app.use(errorHandler);
 
