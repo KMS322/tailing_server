@@ -24,6 +24,7 @@ app.use(
     origin: [
       "http://localhost:3000",
       "http://localhost",
+      "http://localhost:8081",
       "http://175.45.195.45:3000",
       "http://175.45.195.45",
     ],
@@ -51,6 +52,6 @@ app.use(errorHandler);
 
 const port = 3060;
 
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
   console.log(`${port}에서 서버 실행 중`);
 });

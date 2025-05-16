@@ -40,7 +40,6 @@ router.post("/register", isLoggedIn, async(req, res, next) => {
 router.post("/load", isLoggedIn, async(req,res,next) => {
   try {
     const {device_code} = req.body;
-    console.log("device_code : ", device_code);
     const pets = await Pet.findAll({
       where: {device_code}
     })

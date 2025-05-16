@@ -5,7 +5,6 @@ const {Device} = require("../models");
 router.post("/check", async(req, res, next) => {
   try {
     const { deviceCode} = req.body;
-    console.log("device_code : ", deviceCode);
     const exDevice = await Device.findOne({
       where: {device_code : deviceCode}
     }) 
