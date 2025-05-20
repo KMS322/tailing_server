@@ -13,6 +13,12 @@ router.post("/signup", isNotLoggedIn, async(req,res,next) => {
     if (exUser) {
       return res.status(400).json({ message: "이미 가입된 아이디입니다." });
     }
+
+    const exDeviceOrg = await Organization.findOne({ where: { device_code: deviceCode } });
+    if (exDeviceOrg) {
+      console.log("이미 등록된 디바이스입니다.");
+      return res.status(400).json({ message: "이미 등록된 디바이스입니다." });
+    }
     
     const hashedPassword = await bcrypt.hash(org_pw, 12);
 

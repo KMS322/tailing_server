@@ -9,13 +9,16 @@ const userRouter = require("./routes/user");
 const petRouter = require("./routes/pet");
 const deviceRouter = require("./routes/device");
 const dataRouter = require("./routes/data");
+const orgRouter = require("./routes/org");
 const { InitDevice } = require("./routes/initDevice");
 const {dummyPet} = require("./routes/dummy");
 
 db.sequelize
   .sync()
-  .then(() => {
+  .then(async () => {
     console.log("db connected");
+    await InitDevice();
+    await dummyPet();
   })
   .catch(console.err);
 
@@ -40,13 +43,13 @@ app.get("/", (req, res) => {
   res.status(200).send("server on");
 });
 
-InitDevice();
-// dummyPet();
+
 
 app.use("/user", userRouter);
 app.use("/pet", petRouter);
 app.use("/device", deviceRouter);
 app.use("/data", dataRouter);
+app.use("/org", orgRouter);
 // 에러 핸들링 미들웨어는 라우터 다음에 위치해야 합니다
 app.use(errorHandler);
 

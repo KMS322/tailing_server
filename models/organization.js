@@ -3,7 +3,7 @@ module.exports = (sequelize, DataTypes) => {
     "Organization",
     {
       device_code: {
-        type: DataTypes.STRING(10),
+        type: DataTypes.STRING,
         allowNull: false,
         unique: true,
       },
@@ -32,6 +32,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING(50),
         allowNull: false,
       },
+    },
+    {
+      charset: "utf8mb4",
+      collate: "utf8mb4_bin",
     }
   );
   Organization.associate = (db) => {

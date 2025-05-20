@@ -10,10 +10,15 @@ router.post("/check", async(req, res, next) => {
     }) 
 
     if(!exDevice) {
-      return res.status(400).json({message : "잘못된 디바이스 코드입니다."})
+      console.log("유효하지 않은 디바이스 코드입니다.");
+      return res.status(400).json({message : "유효하지 않은 디바이스 코드입니다."})
+    }
+    if(exDevice.used) {
+      console.log("이미 등록된 디바이스 코드입니다.");
+      return res.status(400).json({message : "이미 등록된 디바이스 코드입니다."})
     }
 
-    return res.status(200).json({message : "디바이스 코드 확인 완료"})
+    return res.status(200).json({message : "등록 가능한 디바이스 코드입니다."})
 
       
   } catch(e) {
@@ -21,6 +26,5 @@ router.post("/check", async(req, res, next) => {
     next(e);
   }
 })
-
 module.exports = router;
 

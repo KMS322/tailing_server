@@ -1,15 +1,18 @@
 const {Pet} = require("../models");
+const { deviceCodes } = require("./deviceCode");
 
 const dummyPet = async () => {
   try {
+    const exPet = await Pet.findAll();
+    if(exPet.length < 1) {    
     await Pet.create({
       name: "1번개",
       birth: "2020-01-01",
       breed: "dog1",
       gender: false,
       neutered: true,
-      device_code: "DEVICE001",
-      pet_code: "PET001",
+      device_code: deviceCodes[0],
+      pet_code: `${deviceCodes[0]}_20250519104529`,
     });
     await Pet.create({
       name: "2콩이",
@@ -17,8 +20,8 @@ const dummyPet = async () => {
       breed: "dog2",
       gender: true,
       neutered: false,
-      device_code: "DEVICE001",
-      pet_code: "PET002",
+      device_code: deviceCodes[0],
+      pet_code: `${deviceCodes[0]}_20250519104530`,
     });
     await Pet.create({
       name: "3초코",
@@ -26,8 +29,8 @@ const dummyPet = async () => {
       breed: "dog3",
       gender: false,
       neutered: true,
-      device_code: "DEVICE001",
-      pet_code: "PET003",
+      device_code: deviceCodes[0],
+      pet_code: `${deviceCodes[0]}_20250519104531`,
     });
     await Pet.create({
       name: "4하늘",
@@ -35,8 +38,8 @@ const dummyPet = async () => {
       breed: "dog4",
       gender: true,
       neutered: false,
-      device_code: "DEVICE001",
-      pet_code: "PET004",
+      device_code: deviceCodes[0],
+      pet_code: `${deviceCodes[0]}_20250519104532`,
     });
     await Pet.create({
       name: "5달이",
@@ -44,9 +47,12 @@ const dummyPet = async () => {
       breed: "dog5",
       gender: false,
       neutered: false,
-      device_code: "DEVICE001",
-      pet_code: "PET005",
+      device_code: deviceCodes[0],
+      pet_code: `${deviceCodes[0]}_20250519104533`,
     });
+
+    }
+
   } catch(e) {
     console.error(e);
   }

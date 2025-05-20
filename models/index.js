@@ -13,6 +13,7 @@ const sequelize = new Sequelize(
 db.Organization = require("./organization")(sequelize, Sequelize);
 db.Pet = require("./pet")(sequelize, Sequelize);
 db.Device = require("./device")(sequelize, Sequelize);
+db.CsvData = require("./csvData")(sequelize, Sequelize);
 
 Object.keys(db).forEach((modelName) => {
   if (db[modelName].associate) {

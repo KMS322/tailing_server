@@ -27,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
       },
       device_code: {
-        type: DataTypes.STRING(10),
+        type: DataTypes.STRING,
         allowNull: false,
         references: {
           model: "Organizations",
@@ -35,9 +35,13 @@ module.exports = (sequelize, DataTypes) => {
         },
       },
       pet_code: {
-        type: DataTypes.STRING(20), 
+        type: DataTypes.STRING(100), 
         allowNull: false,
       }
+    },  
+    {
+      charset: "utf8mb4",
+      collate: "utf8mb4_bin",
     }
   );
 

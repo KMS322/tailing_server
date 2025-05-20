@@ -8,12 +8,9 @@ router.post("/register", isLoggedIn, async(req, res, next) => {
   try {
     const data = req.body;
 
-    const exPet = await Pet.findAll({
-      where: {device_code: data.device_code}
-    })
-    const exPetNum = exPet.length;
+
     const pet_code = `${data.device_code}_${dayjs().format('YYYYMMDDHHmmss')}`;
-    if(data.gender === "수컷"){
+    if(data.gender){
       data.gender = true;
     }else{
       data.gender = false;
