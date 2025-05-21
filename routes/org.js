@@ -6,7 +6,6 @@ const {Organization} = require('../models');
 router.post("/load", async (req, res, next) => {
   try {
     const { device_code } = req.body;
-    console.log("Received device_code:", device_code);  // 디버깅용 로그
 
     const org = await Organization.findOne({
       attributes: { exclude: ['org_pw'] },
@@ -90,11 +89,6 @@ router.post("/changePW", async(req, res, next) => {
 router.post("/changeInfo", async(req, res, next) => {
   try {
     const { token, org_name, org_address, org_phone, org_email } = req.body;
-    console.log("token : ", token);
-    console.log("org_name : ", org_name);
-    console.log("org_address : ", org_address);
-    console.log("org_phone : ", org_phone);
-    console.log("org_email : ", org_email);
 
     const exUser = await Organization.findOne({
       where: {device_code: token.device_code, org_id : token.org_id}

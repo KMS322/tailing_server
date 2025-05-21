@@ -8,13 +8,10 @@ router.post("/check", async(req, res, next) => {
     const exDevice = await Device.findOne({
       where: {device_code : deviceCode}
     }) 
-
     if(!exDevice) {
-      console.log("유효하지 않은 디바이스 코드입니다.");
       return res.status(400).json({message : "유효하지 않은 디바이스 코드입니다."})
     }
     if(exDevice.used) {
-      console.log("이미 등록된 디바이스 코드입니다.");
       return res.status(400).json({message : "이미 등록된 디바이스 코드입니다."})
     }
 

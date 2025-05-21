@@ -1,4 +1,7 @@
 const deviceCodes = [
+  "aa",
+  "bb",
+  "cc",
 "CREATAILd4MHtL7k",
   "CREATAIL6Nt08rwi",
   "CREATAILqZyqurVl",

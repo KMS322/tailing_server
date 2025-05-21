@@ -93,11 +93,9 @@ router.post("/load", async(req, res, next) => {
 router.post("/downloadCSV", async(req, res, next) => {
   try {
     const {filename} = req.body;
-
     const firstDir = filename.split("_")[0];
     const secondDir = filename.split("_")[1].split("-")[0].slice(0,8);
     const filePath = path.join(DATA_DIR, firstDir, secondDir, filename);
-    console.log("filename : ", filename);
     if(fs.existsSync(filePath)){
     res.download(filePath, filename, (err) => {
         if (err) {

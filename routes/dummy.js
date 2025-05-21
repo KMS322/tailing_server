@@ -1,4 +1,4 @@
-const {Pet} = require("../models");
+const {Pet, CsvData} = require("../models");
 const { deviceCodes } = require("./deviceCode");
 
 const dummyPet = async () => {
@@ -53,6 +53,39 @@ const dummyPet = async () => {
 
     }
 
+    const exCsvData = await CsvData.findAll();
+    if(exCsvData.length < 1) {
+      await CsvData.create({
+        device_code: deviceCodes[0],
+        pet_code: `${deviceCodes[0]}_20250519104530`,
+        date: "20250519",
+        file_name: `${deviceCodes[0]}_20250519104530_20250519-114457.csv`
+      })
+      await CsvData.create({
+        device_code: deviceCodes[0],
+        pet_code: `${deviceCodes[0]}_20250519104530`,
+        date: "20250519",
+        file_name: `${deviceCodes[0]}_20250519104530_20250519-114517.csv`
+      })
+      await CsvData.create({
+        device_code: deviceCodes[0],
+        pet_code: `${deviceCodes[0]}_20250519104530`,
+        date: "20250519",
+        file_name: `${deviceCodes[0]}_20250519104530_20250519-114551.csv`
+      })
+      await CsvData.create({
+        device_code: deviceCodes[0],
+        pet_code: `${deviceCodes[0]}_20250519104530`,
+        date: "20250519",
+        file_name: `${deviceCodes[0]}_20250519104530_20250519-114625.csv`
+      })
+      await CsvData.create({
+        device_code: deviceCodes[0],
+        pet_code: `${deviceCodes[0]}_20250519104530`,
+        date: "20250519",
+        file_name: `${deviceCodes[0]}_20250519104530_20250519-114638.csv`
+      })
+    }
   } catch(e) {
     console.error(e);
   }

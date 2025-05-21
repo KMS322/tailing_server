@@ -14,9 +14,8 @@ router.post("/signup", isNotLoggedIn, async(req,res,next) => {
       return res.status(400).json({ message: "이미 가입된 아이디입니다." });
     }
 
-    const exDeviceOrg = await Organization.findOne({ where: { device_code: deviceCode } });
+    const exDeviceOrg = await Device.findOne({ where: { device_code: deviceCode, used: true } });
     if (exDeviceOrg) {
-      console.log("이미 등록된 디바이스입니다.");
       return res.status(400).json({ message: "이미 등록된 디바이스입니다." });
     }
     
@@ -31,11 +30,11 @@ router.post("/signup", isNotLoggedIn, async(req,res,next) => {
       org_phone,
       org_email
     });
-
     await Device.update(
       { used: true },
       { where: { device_code: deviceCode } }
     );
+ 
 
     res.status(201).json({
       message: "회원가입이 완료되었습니다.",
@@ -47,16 +46,13 @@ router.post("/signup", isNotLoggedIn, async(req,res,next) => {
         }
       }
     });
-
-    
-    
   } catch(e){
     console.error(e);
     next(e);
   }
 })
 
-router.post("/checkId", async(req,res,next) => {
+router.post("/checkId", isNotLoggedIn, async(req,res,next) => {
   try {
     const {org_id} = req.body;
     const exUser = await Organization.findOne({ where: { org_id } });

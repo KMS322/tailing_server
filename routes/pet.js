@@ -20,7 +20,7 @@ router.post("/register", isLoggedIn, async(req, res, next) => {
       birth: data.birth,
       breed: data.breed,
       gender: data.gender,
-      neutered: data.isNeutered,
+      neutered: data.neutered,
       disease: data.disease,
       device_code: data.device_code,
       pet_code,
@@ -58,7 +58,7 @@ router.post("/delete", async(req,res,next) => {
   }
 })  
 
-router.post("/edit", async(req, res, next) => {
+router.post("/update", async(req, res, next) => {
   try { 
     const {pet_code, name, birth, breed, gender, neutered, disease} = req.body;
     await Pet.update({name, birth, breed, gender, neutered, disease}, {where: {pet_code}});
