@@ -1,7 +1,5 @@
 const deviceCodes = [
-  "aa",
-  "bb",
-  "cc",
+
 "CREATAILd4MHtL7k",
   "CREATAIL6Nt08rwi",
   "CREATAILqZyqurVl",
@@ -101,7 +99,13 @@ const deviceCodes = [
   "CREATAILrIEse6Yt",
   "CREATAILBUWy5wSV",
   "CREATAILN853SmQj",
-  "CREATAILZZxJ6HK6"
+  "CREATAILZZxJ6HK6",
+  "aa",
+  "bb",
+  "cc",
+  "dd",
+  "ee",
+  "ff",
 ]
 
 module.exports = { deviceCodes };

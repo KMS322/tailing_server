@@ -20,7 +20,8 @@ const InitDevice = async () => {
             return;
         }
         const hashedPassword = await bcrypt.hash("a", 12);
-        const organization = await Organization.create({
+        const hashedPassword2 = await bcrypt.hash("b", 12);
+        await Organization.create({
             device_code: deviceCodes[0],
             org_name : "동물병원",
             org_address : "여기저기",
@@ -29,10 +30,25 @@ const InitDevice = async () => {
             org_phone : "010-1234-5678",
             org_email : "admin@gmail.com"
         });
+
+        await Organization.create({
+            device_code: deviceCodes[1],
+            org_name : "병원동물",
+            org_address : "저기여기",
+            org_id: "b",
+            org_pw: hashedPassword2,
+            org_phone : "010-5678-1234",
+            org_email : "gmail@admin.com"
+        });
       
         await Device.update(
-        { used: true },
-        { where: { device_code: deviceCodes[0] } }
+            { used: true },
+            { where: { device_code: deviceCodes[0] } }
+        );
+
+        await Device.update(
+            { used: true },
+            { where: { device_code: deviceCodes[1] } }
         );
     } catch(e) {
         console.error(e);

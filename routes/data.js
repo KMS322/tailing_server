@@ -92,7 +92,8 @@ router.post("/load", async(req, res, next) => {
 
 router.post("/downloadCSV", async(req, res, next) => {
   try {
-    const {filename} = req.body;
+    const {filename} = req.body;  
+    console.log("filename : ", filename);
     const firstDir = filename.split("_")[0];
     const secondDir = filename.split("_")[1].split("-")[0].slice(0,8);
     const filePath = path.join(DATA_DIR, firstDir, secondDir, filename);
