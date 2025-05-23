@@ -16,6 +16,10 @@ const createDirectoryIfNotExists = (dirPath) => {
 router.post("/create", async(req, res, next) => {
   try {
     const {date, time, pet_code, device_code} = req.body;
+    console.log("date : ", date);
+    console.log("time : ", time);
+    console.log("pet_code : ", pet_code);
+    console.log("device_code : ", device_code);
     const deviceDir = path.join(DATA_DIR, device_code);
     const dateDir = path.join(deviceDir, date);
     const filename = `${pet_code}_${date}-${time}.csv`;
@@ -45,13 +49,13 @@ router.post("/send", async(req, res, next) => {
   try {
     const {data, connectedDevice} = req.body;
     console.log("data.length : ", data.length);
-    const {startDate, startTime, petCode, deviceCode} = connectedDevice;  
+    const {startDate, startTime, petCode, deviceCode} = connectedDevice;
 
     const deviceDir = path.join(DATA_DIR, deviceCode);
     const dateDir = path.join(deviceDir, startDate);
-    const filename = `${deviceCode}_${petCode}_${startDate}-${startTime}.csv`;
+    const filename = `${petCode}_${startDate}-${startTime}.csv`;
     const filePath = path.join(dateDir, filename);
-
+    
     const csvData = data.map(point => 
       `${point.timestamp},${point.ir},${point.red},${point.spo2},${point.hr},${point.temp}`
     ).join('\n');

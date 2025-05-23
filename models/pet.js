@@ -23,7 +23,23 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       disease: {
-        type: DataTypes.STRING(100),
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      weight: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      vet: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      history: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      species: {
+        type: DataTypes.STRING,
         allowNull: true,
       },
       device_code: {
