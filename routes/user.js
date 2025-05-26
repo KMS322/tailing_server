@@ -8,7 +8,7 @@ const jwt = require('jsonwebtoken');
 
 router.post("/signup", isNotLoggedIn, async(req,res,next) => {
   try {
-    const { deviceCode, org_name, org_address, org_id, org_pw, org_phone, org_email } = req.body;
+    const { deviceCode, org_name, org_address, org_id, org_pw, org_phone, org_email, marketingAgreed, smsAgreed, emailAgreed, pushAgreed } = req.body;
     const exUser = await Organization.findOne({ where: { org_id } });
     if (exUser) {
       return res.status(400).json({ message: "이미 가입된 아이디입니다." });
@@ -28,7 +28,11 @@ router.post("/signup", isNotLoggedIn, async(req,res,next) => {
       org_id,
       org_pw: hashedPassword,
       org_phone,
-      org_email
+      org_email,
+      agree_marketing : marketingAgreed,
+      agree_sms : smsAgreed,
+      agree_email : emailAgreed,  
+      agree_push : pushAgreed
     });
     await Device.update(
       { used: true },

@@ -24,6 +24,10 @@ router.post("/register", isLoggedIn, async(req, res, next) => {
       disease: data.disease,
       device_code: data.device_code,
       pet_code,
+      weight: data.weight,
+      vet: data.vet,
+      history: data.history,
+      species: data.species,
     })
 
     res.status(200).send("pet register success")
@@ -60,8 +64,39 @@ router.post("/delete", async(req,res,next) => {
 
 router.post("/update", async(req, res, next) => {
   try { 
-    const {pet_code, name, birth, breed, gender, neutered, disease} = req.body;
-    await Pet.update({name, birth, breed, gender, neutered, disease}, {where: {pet_code}});
+    const {
+      pet_code,
+      name,
+      birth,
+      breed,
+      gender: originalGender,
+      neutered,
+      disease,
+      weight,
+      vet,
+      history,
+      species,
+      admission
+    } = req.body;
+
+    const gender = originalGender ? true : false;
+
+    await Pet.update({
+      name,
+      birth,
+      breed,
+      gender,
+      neutered,
+      disease,
+      weight,
+      vet,
+      history,
+      species,
+      admission
+    }, {
+      where: { pet_code }
+    });
+    
     res.status(200).send("pet edit success");
   } catch(e) {
     console.error(e);

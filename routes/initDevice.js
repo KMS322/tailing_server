@@ -28,7 +28,11 @@ const InitDevice = async () => {
             org_id: "a",
             org_pw: hashedPassword,
             org_phone : "010-1234-5678",
-            org_email : "admin@gmail.com"
+            org_email : "admin@gmail.com",
+            agree_marketing: true,
+            agree_sms: true,
+            agree_email: true,
+            agree_push: true
         });
 
         await Organization.create({
@@ -38,7 +42,11 @@ const InitDevice = async () => {
             org_id: "b",
             org_pw: hashedPassword2,
             org_phone : "010-5678-1234",
-            org_email : "gmail@admin.com"
+            org_email : "gmail@admin.com",
+            agree_marketing: true,
+            agree_sms: true,
+            agree_email: true,
+            agree_push: true
         });
       
         await Device.update(

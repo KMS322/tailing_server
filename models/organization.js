@@ -32,6 +32,22 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING(50),
         allowNull: false,
       },
+      agree_marketing : {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+      },
+      agree_sms : {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+      },
+      agree_email : {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+      },
+      agree_push : {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+      },
     },
     {
       charset: "utf8mb4",

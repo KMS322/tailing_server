@@ -8,6 +8,7 @@ const dummyPet = async () => {
     await Pet.create({
       name: "1번개",
       birth: "2020-01-01",
+      admission: "1999-01-01",
       breed: "dog1",
       gender: false,
       neutered: true,
@@ -22,6 +23,7 @@ const dummyPet = async () => {
     await Pet.create({
       name: "2콩이",
       birth: "2019-03-15",
+      admission: "1999-01-01",
       breed: "dog2",
       gender: true,
       neutered: false,
@@ -36,6 +38,7 @@ const dummyPet = async () => {
     await Pet.create({
       name: "3초코",
       birth: "2018-07-21",
+      admission: "1999-01-01",
       breed: "dog3",
       gender: false,
       neutered: true,
@@ -50,6 +53,7 @@ const dummyPet = async () => {
     await Pet.create({
       name: "4하늘",
       birth: "2021-05-05",
+      admission: "1999-01-01",
       breed: "dog4",
       gender: true,
       neutered: false,
@@ -64,6 +68,7 @@ const dummyPet = async () => {
     await Pet.create({
       name: "5달이",
       birth: "2022-11-11",
+      admission: "1999-01-01",
       breed: "dog5",
       gender: false,
       neutered: false,

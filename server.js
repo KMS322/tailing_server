@@ -24,13 +24,14 @@ db.sequelize
 
 app.use(
   cors({
-    origin: [
-      "http://localhost:3000",
-      "http://localhost",
-      "http://localhost:8081",
-      "http://175.45.195.45:3000",
-      "http://175.45.195.45",
-    ],
+    // origin: [
+    //   "http://localhost:3000",
+    //   "http://localhost",
+    //   "http://localhost:8081",
+    //   "http://175.45.195.45:3000",
+    //   "http://175.45.195.45",
+    // ],
+    origin: "*",
     credentials: true,
   })
 );

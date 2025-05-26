@@ -42,6 +42,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      admission: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       device_code: {
         type: DataTypes.STRING,
         allowNull: false,

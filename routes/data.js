@@ -16,10 +16,6 @@ const createDirectoryIfNotExists = (dirPath) => {
 router.post("/create", async(req, res, next) => {
   try {
     const {date, time, pet_code, device_code} = req.body;
-    console.log("date : ", date);
-    console.log("time : ", time);
-    console.log("pet_code : ", pet_code);
-    console.log("device_code : ", device_code);
     const deviceDir = path.join(DATA_DIR, device_code);
     const dateDir = path.join(deviceDir, date);
     const filename = `${pet_code}_${date}-${time}.csv`;
@@ -97,9 +93,8 @@ router.post("/load", async(req, res, next) => {
 router.post("/downloadCSV", async(req, res, next) => {
   try {
     const {filename} = req.body;  
-    console.log("filename : ", filename);
     const firstDir = filename.split("_")[0];
-    const secondDir = filename.split("_")[1].split("-")[0].slice(0,8);
+    const secondDir = filename.split("_")[2].split('-')[0]
     const filePath = path.join(DATA_DIR, firstDir, secondDir, filename);
     if(fs.existsSync(filePath)){
     res.download(filePath, filename, (err) => {

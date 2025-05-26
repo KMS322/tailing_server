@@ -118,6 +118,52 @@ router.post("/changeInfo", async(req, res, next) => {
   }
 })
 
+router.post("/loadAgree", async(req, res, next) => {
+  try {
+    const { token } = req.body;
+    console.log("token : ", token);
+    const org = await Organization.findOne({  
+      where: {device_code: token.device_code, org_id : token.org_id},
+      attributes: ['agree_marketing', 'agree_sms', 'agree_email', 'agree_push']
+    })
+
+    if(!org) {
+      return res.status(400).json({
+        message: "존재하지 않는 기관입니다."
+      })
+    }
+
+    res.status(200).json({
+      data: org,
+      message: "약관 조회 성공"
+    })
+  } catch(e) {
+    console.error(e);
+    next(e);
+  }
+})
+
+router.post("/changeAgree", async(req, res, next) => {
+  try {
+    const { token, agree } = req.body;
+    console.log("agree : ", agree);
+    // await Organization.update({
+    //   agree_marketing: agree.agree_marketing,
+    //   agree_sms: agree.agree_sms,
+    //   agree_email: agree.agree_email,
+    //   agree_push: agree.agree_push
+    // }, {
+    //   where: {device_code: token.device_code, org_id : token.org_id},
+    // })
+
+
+    
+    
+  }
+  catch(e) {
+    console.error(e);
+  }
+})
 module.exports = router;
 
 
