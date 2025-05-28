@@ -14,6 +14,7 @@ db.Organization = require("./organization")(sequelize, Sequelize);
 db.Pet = require("./pet")(sequelize, Sequelize);
 db.Device = require("./device")(sequelize, Sequelize);
 db.CsvData = require("./csvData")(sequelize, Sequelize);
+db.Board = require("./board")(sequelize, Sequelize);
 
 Object.keys(db).forEach((modelName) => {
   if (db[modelName].associate) {

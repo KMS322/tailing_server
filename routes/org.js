@@ -121,7 +121,6 @@ router.post("/changeInfo", async(req, res, next) => {
 router.post("/loadAgree", async(req, res, next) => {
   try {
     const { token } = req.body;
-    console.log("token : ", token);
     const org = await Organization.findOne({  
       where: {device_code: token.device_code, org_id : token.org_id},
       attributes: ['agree_marketing', 'agree_sms', 'agree_email', 'agree_push']
@@ -146,22 +145,42 @@ router.post("/loadAgree", async(req, res, next) => {
 router.post("/changeAgree", async(req, res, next) => {
   try {
     const { token, agree } = req.body;
-    console.log("agree : ", agree);
-    // await Organization.update({
-    //   agree_marketing: agree.agree_marketing,
-    //   agree_sms: agree.agree_sms,
-    //   agree_email: agree.agree_email,
-    //   agree_push: agree.agree_push
-    // }, {
-    //   where: {device_code: token.device_code, org_id : token.org_id},
-    // })
+    await Organization.update({
+      agree_marketing: agree.agree_marketing,
+      agree_sms: agree.agree_sms,
+      agree_email: agree.agree_email,
+      agree_push: agree.agree_push
+    }, {
+      where: {device_code: token.device_code, org_id : token.org_id},
+    })
 
-
-    
+    res.status(200).json({
+      message: "약관 변경 성공"
+    })
     
   }
   catch(e) {
     console.error(e);
+  }
+})
+
+router.post("/delete", async(req, res, next) => {
+  try {
+    const { token } = req.body;
+    console.log("token : ", token);
+    // await Organization.update({
+    //   isActive: false,
+    //   deletedAt: new Date()
+    // }, {
+    //   where: {device_code: token.device_code, org_id : token.org_id}
+    // })
+
+    res.status(200).json({
+      message: "기관 탈퇴 성공"
+    })
+  } catch(e) {
+    console.error(e);
+    next(e);
   }
 })
 module.exports = router;

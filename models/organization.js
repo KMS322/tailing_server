@@ -48,6 +48,14 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BOOLEAN,
         allowNull: false,
       },
+      isActive : {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+      },
+      deletedAt : {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
     },
     {
       charset: "utf8mb4",

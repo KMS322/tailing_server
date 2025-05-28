@@ -1,4 +1,4 @@
-const {Pet, CsvData} = require("../models");
+const {Pet, CsvData, Board} = require("../models");
 const { deviceCodes } = require("./deviceCode");
 
 const dummyPet = async () => {
@@ -115,6 +115,34 @@ const dummyPet = async () => {
         date: "20250519",
         file_name: `${deviceCodes[0]}_20250519104530_20250519-114638.csv`
       })
+    }
+
+    const exBoard = await Board.findAll();  
+    if(exBoard.length < 1) {
+      const titles = [
+        "첫번째 공지사항",
+        "두번째 공지사항",
+        "세번째 공지사항"
+      ];
+      
+      const contents = [
+        "첫번째 공지사항 내용입니다. 안녕하세요. 반갑습니다.",
+        "두번째 공지사항 내용입니다. 오늘도 좋은 하루 되세요.",
+        "세번째 공지사항 내용입니다. 감사합니다."
+      ];
+
+      for(let i = 0; i < 70; i++) {
+        const titleIndex = i % 3;
+        const contentIndex = i % 3;
+        const timestamp = "202505271513" + (10 + i).toString().padStart(2, '0');
+        
+        await Board.create({
+          board_code: `board_${timestamp}`,
+          title: titles[titleIndex],
+          content: contents[contentIndex],
+          isPinned: false
+        });
+      }
     }
   } catch(e) {
     console.error(e);

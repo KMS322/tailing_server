@@ -32,7 +32,8 @@ const InitDevice = async () => {
             agree_marketing: true,
             agree_sms: true,
             agree_email: true,
-            agree_push: true
+            agree_push: true,
+            isActive: true
         });
 
         await Organization.create({
@@ -46,7 +47,8 @@ const InitDevice = async () => {
             agree_marketing: true,
             agree_sms: true,
             agree_email: true,
-            agree_push: true
+            agree_push: true,
+            isActive: true
         });
       
         await Device.update(

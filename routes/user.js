@@ -32,7 +32,8 @@ router.post("/signup", isNotLoggedIn, async(req,res,next) => {
       agree_marketing : marketingAgreed,
       agree_sms : smsAgreed,
       agree_email : emailAgreed,  
-      agree_push : pushAgreed
+      agree_push : pushAgreed,
+      isActive: true
     });
     await Device.update(
       { used: true },
@@ -80,6 +81,10 @@ router.post("/login", isNotLoggedIn, async(req,res,next) => {
     const isMatch = await bcrypt.compare(password, exUser.org_pw);
     if(!isMatch){
       return res.status(400).json({ message: "비밀번호가 일치하지 않습니다." });
+    }
+
+    if(!exUser.isActive){
+      return res.status(400).json({ message: "탈퇴한 회원입니다." });
     }
 
     const token = jwt.sign(

@@ -77,6 +77,7 @@ router.post("/load", async(req, res, next) => {
         device_code,
         pet_code,
         date,
+        isActive: true,
       }
     })
 
@@ -108,6 +109,27 @@ router.post("/downloadCSV", async(req, res, next) => {
     }
   } catch(e) {
     console.error('Error downloading CSV:', e);
+    next(e);
+  }
+})
+
+router.post("/deleteCSV", async(req, res, next) => {
+  try {
+    const {filename} = req.body;
+    console.log("filename : ", filename);
+    
+    await CsvData.update({
+      isActive: false,
+    }, {
+      where: {
+        file_name: filename,
+      }
+    })
+
+    res.status(200).send("CSV 파일 삭제 완료");
+    
+  } catch(e) {
+    console.error('Error deleting CSV:', e);
     next(e);
   }
 })
