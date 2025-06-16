@@ -5,6 +5,7 @@ const { Device } = require("../models");
 const { isLoggedIn, isNotLoggedIn } = require("../middlewares/auth");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
+const admin = require("firebase-admin");
 
 router.post("/signup", isNotLoggedIn, async (req, res, next) => {
   try {
@@ -200,6 +201,66 @@ router.post("/check/password", async (req, res, next) => {
   } catch (e) {
     console.log(e.error);
     next(e);
+  }
+});
+
+const serviceAccount = require("../config/talktail-872bf-firebase-adminsdk-fbsvc-e4f7881bfe.json");
+
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+  });
+}
+
+router.post("/battery/push", async (req, res, next) => {
+  const { batteryLevel, fcmToken } = req.body;
+
+  console.log("요청받은 배터리:", batteryLevel);
+  console.log("FCM 토큰:", fcmToken);
+
+  let message = null;
+
+  if (batteryLevel <= 10) {
+    message = {
+      token: fcmToken,
+      notification: {
+        title: "배터리 부족 알림 ⚠️",
+        body: `배터리 잔량이 ${batteryLevel}% 입니다. 충전이 필요합니다.`,
+      },
+      data: {
+        screen: "BatteryTest", // 이동할 스크린 이름 (네비게이터에서 등록된 이름)
+      },
+    };
+  } else if (batteryLevel === 100) {
+    message = {
+      token: fcmToken,
+      notification: {
+        title: "배터리 충전 완료 🔋",
+        body: `배터리가 ${batteryLevel}% 충전되었습니다. 기기 사용을 시작하세요!`,
+      },
+      data: {
+        screen: "BatteryTest", // 이동할 스크린 이름 (네비게이터에서 등록된 이름)
+      },
+    };
+  }
+
+  if (message) {
+    try {
+      const result = await admin.messaging().send(message);
+      console.log("푸시 알림 결과:", result);
+      return res
+        .status(200)
+        .json({ success: true, message: "알림 전송 완료", result });
+    } catch (error) {
+      console.error("FCM 전송 실패:", error.message);
+      return res
+        .status(500)
+        .json({ success: false, message: "푸시 알림 실패", error });
+    }
+  } else {
+    return res
+      .status(200)
+      .json({ success: false, message: "알림 발송 조건 아님" });
   }
 });
 
