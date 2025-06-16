@@ -241,7 +241,7 @@ router.post("/battery/push", async (req, res, next) => {
       token: fcmToken,
       notification: {
         title: "배터리 부족 알림 ⚠️",
-        body: `배터리 잔량이 ${batteryLevel}% 입니다. 충전이 필요합니다. ${dayjs().format("HH:mm:ss")}`,
+        body: `배터리 잔량이 ${batteryLevel}% 입니다. 충전이 필요합니다.`,
       },
       data: {
         screen: "BatteryTest", // 이동할 스크린 이름 (네비게이터에서 등록된 이름)
