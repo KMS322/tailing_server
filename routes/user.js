@@ -7,6 +7,7 @@ const router = express.Router();
 const jwt = require("jsonwebtoken");
 const admin = require("firebase-admin");
 const dotenv = require("dotenv");
+const dayjs = require("dayjs");
 
 dotenv.config();
 
@@ -240,7 +241,7 @@ router.post("/battery/push", async (req, res, next) => {
       token: fcmToken,
       notification: {
         title: "배터리 부족 알림 ⚠️",
-        body: `배터리 잔량이 ${batteryLevel}% 입니다. 충전이 필요합니다. ${Date.now().toString()}`,
+        body: `배터리 잔량이 ${batteryLevel}% 입니다. 충전이 필요합니다. ${dayjs().format("HH:mm:ss")}`,
       },
       data: {
         screen: "BatteryTest", // 이동할 스크린 이름 (네비게이터에서 등록된 이름)
@@ -251,7 +252,7 @@ router.post("/battery/push", async (req, res, next) => {
       token: fcmToken,
       notification: {
         title: "배터리 충전 완료 🔋",
-        body: `배터리가 ${batteryLevel}% 충전되었습니다. 기기 사용을 시작하세요! ${Date.now().toString()}`,
+        body: `배터리가 ${batteryLevel}% 충전되었습니다. 기기 사용을 시작하세요! ${dayjs().format("HH:mm:ss")}`,
       },
       data: {
         screen: "BatteryTest", // 이동할 스크린 이름 (네비게이터에서 등록된 이름)
