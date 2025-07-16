@@ -212,14 +212,14 @@ const serviceAccount = {
   type: "service_account",
   project_id: process.env.FIREBASE_PROJECT_ID,
   private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
-  private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+  private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
   client_email: process.env.FIREBASE_CLIENT_EMAIL,
   client_id: process.env.FIREBASE_CLIENT_ID,
   auth_uri: "https://accounts.google.com/o/oauth2/auth",
   token_uri: "https://oauth2.googleapis.com/token",
   auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
   client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL,
-  universe_domain: "googleapis.com"
+  universe_domain: "googleapis.com",
 };
 
 if (!admin.apps.length) {
@@ -252,7 +252,9 @@ router.post("/battery/push", async (req, res, next) => {
       token: fcmToken,
       notification: {
         title: "배터리 충전 완료 🔋",
-        body: `배터리가 ${batteryLevel}% 충전되었습니다. 기기 사용을 시작하세요! ${dayjs().format("HH:mm:ss")}`,
+        body: `배터리가 ${batteryLevel}% 충전되었습니다. 기기 사용을 시작하세요! ${dayjs().format(
+          "HH:mm:ss"
+        )}`,
       },
       data: {
         screen: "BatteryTest", // 이동할 스크린 이름 (네비게이터에서 등록된 이름)

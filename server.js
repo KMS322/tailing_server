@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const db = require("./models");
-const errorHandler = require('./middlewares/error');
+const errorHandler = require("./middlewares/error");
 dotenv.config();
 const app = express();
 const userRouter = require("./routes/user");
@@ -12,7 +12,7 @@ const dataRouter = require("./routes/data");
 const orgRouter = require("./routes/org");
 const boardRouter = require("./routes/board");
 const { InitDevice } = require("./routes/initDevice");
-const {dummyPet} = require("./routes/dummy");
+const { dummyPet } = require("./routes/dummy");
 
 db.sequelize
   .sync()
@@ -37,15 +37,13 @@ app.use(
   })
 );
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 app.get("/", (req, res) => {
   console.log("server accessed");
   res.status(200).send("server on");
 });
-
-
 
 app.use("/user", userRouter);
 app.use("/pet", petRouter);
@@ -58,6 +56,6 @@ app.use(errorHandler);
 
 const port = 3060;
 
-app.listen(port, '0.0.0.0', () => {
+app.listen(port, "0.0.0.0", () => {
   console.log(`${port}에서 서버 실행 중`);
 });
