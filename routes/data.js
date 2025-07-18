@@ -60,7 +60,17 @@ router.post("/send", async (req, res, next) => {
 
     // console.log("data : ", data);
 
-    const csvData = data
+    data.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+    const uniqueDataMap = new Map();
+    data.forEach((point) => {
+      if (!uniqueDataMap.has(point.timestamp)) {
+        uniqueDataMap.set(point.timestamp, point);
+      }
+    });
+    const filteredData = Array.from(uniqueDataMap.values());
+
+    const csvData = filteredData
       .map((point) => {
         const formattedTimestamp = new Date(point.timestamp).toLocaleTimeString(
           "ko-KR",
@@ -75,7 +85,7 @@ router.post("/send", async (req, res, next) => {
         return `${formattedTimestamp},${point.spo2},${point.hr},${point.temp}`;
       })
       .join("\n");
-    const csvData2 = data
+    const csvData2 = filteredData
       .map((point) => {
         const date = new Date(point.timestamp);
         const hours = date.getHours().toString().padStart(2, "0");
