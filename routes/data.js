@@ -60,14 +60,20 @@ router.post("/send", async (req, res, next) => {
 
     // console.log("data : ", data);
 
-    data.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-
     const uniqueDataMap = new Map();
+    // data.forEach((point) => {
+    //   // timestamp를 key로 저장 (문자열이면 문자열 그대로, 객체면 .toISOString() 추천)
+    //   const timeKey = new Date(point.timestamp).toISOString();
+    //   if (!uniqueDataMap.has(timeKey)) {
+    //     uniqueDataMap.set(timeKey, point);
+    //   }
+    // });
     data.forEach((point) => {
-      if (!uniqueDataMap.has(point.timestamp)) {
-        uniqueDataMap.set(point.timestamp, point);
+      if (!uniqueDataMap.has(point.cnt)) {
+        uniqueDataMap.set(point.cnt, point);
       }
     });
+
     const filteredData = Array.from(uniqueDataMap.values());
 
     const csvData = filteredData

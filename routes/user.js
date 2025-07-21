@@ -48,10 +48,10 @@ router.post("/signup", isNotLoggedIn, async (req, res, next) => {
       org_pw: hashedPassword,
       org_phone,
       org_email,
-      agree_marketing: marketingAgreed,
-      agree_sms: smsAgreed,
-      agree_email: emailAgreed,
-      agree_push: pushAgreed,
+      agree_marketing: marketingAgreed || 0,
+      agree_sms: smsAgreed || 0,
+      agree_email: emailAgreed || 0,
+      agree_push: pushAgreed || 0,
       isActive: true,
     });
     await Device.update({ used: true }, { where: { device_code: deviceCode } });
