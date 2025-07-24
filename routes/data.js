@@ -76,21 +76,34 @@ router.post("/send", async (req, res, next) => {
 
     const filteredData = Array.from(uniqueDataMap.values());
 
-    const csvData = filteredData
-      .map((point) => {
-        const formattedTimestamp = new Date(point.timestamp).toLocaleTimeString(
-          "ko-KR",
-          {
+    const csvData =
+      filteredData
+        .map((point) => {
+          const { spo2, hr, temp } = point;
+
+          // 모든 값이 0이면 제외
+          if (spo2 === 0 && hr === 0 && temp === 0) {
+            return null;
+          }
+
+          // 0인 값은 빈칸으로 처리
+          const spo2Str = spo2 === 0 ? "" : spo2;
+          const hrStr = hr === 0 ? "" : hr;
+          const tempStr = temp === 0 ? "" : temp;
+
+          const formattedTimestamp = new Date(
+            point.timestamp
+          ).toLocaleTimeString("ko-KR", {
             hour12: false,
             hour: "2-digit",
             minute: "2-digit",
             second: "2-digit",
             fractionalSecondDigits: 3,
-          }
-        );
-        return `${formattedTimestamp},${point.spo2},${point.hr},${point.temp}`;
-      })
-      .join("\n");
+          });
+          return `${formattedTimestamp},${spo2Str},${hrStr},${tempStr}`;
+        })
+        .filter(Boolean) // ✅ null 제거: 모두 0인 row는 완전히 제거됨
+        .join("\r\n") + "\r\n";
     const csvData2 = filteredData
       .map((point) => {
         const date = new Date(point.timestamp);

@@ -4,15 +4,14 @@ const { isLoggedIn, isNotLoggedIn } = require("../middlewares/auth");
 const { Pet } = require("../models");
 const dayjs = require("dayjs");
 
-router.post("/register", isLoggedIn, async(req, res, next) => {
+router.post("/register", isLoggedIn, async (req, res, next) => {
   try {
     const data = req.body;
-
-
-    const pet_code = `${data.device_code}_${dayjs().format('YYYYMMDDHHmmss')}`;
-    if(data.gender){
+    console.log("data : ", data);
+    const pet_code = `${data.device_code}_${dayjs().format("YYYYMMDDHHmmss")}`;
+    if (data.gender) {
       data.gender = true;
-    }else{
+    } else {
       data.gender = false;
     }
     const pet = await Pet.create({
@@ -28,42 +27,42 @@ router.post("/register", isLoggedIn, async(req, res, next) => {
       vet: data.vet,
       history: data.history,
       species: data.species,
-    })
+      admission: data.admission,
+    });
 
-    res.status(200).send("pet register success")
-
+    res.status(200).send("pet register success");
   } catch (error) {
     console.error(error);
     next(error);
   }
-})
+});
 
-router.post("/load", isLoggedIn, async(req,res,next) => {
+router.post("/load", isLoggedIn, async (req, res, next) => {
   try {
-    const {device_code} = req.body;
+    const { device_code } = req.body;
     const pets = await Pet.findAll({
-      where: {device_code}
-    })
+      where: { device_code },
+    });
     res.status(200).json(pets);
-  } catch(e) {
+  } catch (e) {
     console.error(e);
     next(e);
   }
-})
+});
 
-router.post("/delete", async(req,res,next) => {
+router.post("/delete", async (req, res, next) => {
   try {
-    const {pet_code} = req.body;
-    await Pet.destroy({where: {pet_code}});
+    const { pet_code } = req.body;
+    await Pet.destroy({ where: { pet_code } });
     res.status(200).send("pet delete success");
-  } catch(e) {
+  } catch (e) {
     console.error(e);
     next(e);
   }
-})  
+});
 
-router.post("/update", async(req, res, next) => {
-  try { 
+router.post("/update", async (req, res, next) => {
+  try {
     const {
       pet_code,
       name,
@@ -76,32 +75,35 @@ router.post("/update", async(req, res, next) => {
       vet,
       history,
       species,
-      admission
+      admission,
     } = req.body;
 
     const gender = originalGender ? true : false;
 
-    await Pet.update({
-      name,
-      birth,
-      breed,
-      gender,
-      neutered,
-      disease,
-      weight,
-      vet,
-      history,
-      species,
-      admission
-    }, {
-      where: { pet_code }
-    });
-    
+    await Pet.update(
+      {
+        name,
+        birth,
+        breed,
+        gender,
+        neutered,
+        disease,
+        weight,
+        vet,
+        history,
+        species,
+        admission,
+      },
+      {
+        where: { pet_code },
+      }
+    );
+
     res.status(200).send("pet edit success");
-  } catch(e) {
+  } catch (e) {
     console.error(e);
     next(e);
   }
-})
+});
 
 module.exports = router;
