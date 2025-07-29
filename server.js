@@ -12,6 +12,7 @@ const dataRouter = require("./routes/data");
 const orgRouter = require("./routes/org");
 const boardRouter = require("./routes/board");
 const platformRouter = require("./routes/platform");
+const masterRouter = require("./routes/master");
 const { InitDevice } = require("./routes/initDevice");
 const { dummyPet } = require("./routes/dummy");
 
@@ -28,12 +29,13 @@ app.use(
   cors({
     origin: [
       "http://localhost:3000",
+      "http://localhost:3070",
       "http://localhost",
       "http://localhost:8081",
       "http://175.45.195.45:3000",
       "http://175.45.195.45",
       "http://210.90.113.200",
-      "http://210.90.113.200:3000",
+      "http://210.90.113.200:3070",
     ],
     // origin: "*",
     credentials: true,
@@ -55,6 +57,7 @@ app.use("/data", dataRouter);
 app.use("/org", orgRouter);
 app.use("/board", boardRouter);
 app.use("/platform", platformRouter);
+app.use("/master", masterRouter);
 // 에러 핸들링 미들웨어는 라우터 다음에 위치해야 합니다
 app.use(errorHandler);
 
