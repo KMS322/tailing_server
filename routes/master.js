@@ -90,6 +90,7 @@ router.post("/downloadFile", async (req, res, next) => {
         __dirname,
         "../data",
         device_code,
+        currentDay,
         `creamoff_${fileName}`
       ); // 파일 경로
     }
