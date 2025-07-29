@@ -32,8 +32,8 @@ router.post("/loadData", async (req, res, next) => {
 
     const dataLists = await Promise.all(
       csvLists.map(async (item) => {
-        console.log("baseDir : ", baseDir);
-        const filePath = path.join(baseDir, item.file_name);
+        const currentDay = item.file_name.split("_")[2].split("-")[0];
+        const filePath = path.join(baseDir, currentDay, item.file_name);
 
         try {
           const stats = await fs.promises.stat(filePath);
