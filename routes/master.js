@@ -73,6 +73,7 @@ router.post("/loadData", async (req, res, next) => {
 router.post("/downloadFile", async (req, res, next) => {
   try {
     const { fileName, type } = req.body;
+    console.log("dowloadFile router entrance");
     const device_code = fileName.split("_")[0];
     let filePath;
     if (type === "customer") {
