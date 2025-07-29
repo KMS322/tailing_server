@@ -76,8 +76,15 @@ router.post("/downloadFile", async (req, res, next) => {
     console.log("dowloadFile router entrance");
     const device_code = fileName.split("_")[0];
     let filePath;
+    const currentDay = fileName.split("_")[2].split("-")[0];
     if (type === "customer") {
-      filePath = path.join(__dirname, "../data", device_code, fileName); // 파일 경로
+      filePath = path.join(
+        __dirname,
+        "../data",
+        device_code,
+        currentDay,
+        fileName
+      ); // 파일 경로
     } else {
       filePath = path.join(
         __dirname,
