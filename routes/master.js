@@ -54,7 +54,7 @@ router.post("/loadData", async (req, res, next) => {
     );
 
     let petInfos;
-    if (csvLists.length > 1) {
+    if (csvLists.length >= 1) {
       petInfos = await Pet.findAll({
         where: {
           device_code: code,
