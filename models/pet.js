@@ -55,10 +55,14 @@ module.exports = (sequelize, DataTypes) => {
         },
       },
       pet_code: {
-        type: DataTypes.STRING(100), 
+        type: DataTypes.STRING(100),
         allowNull: false,
-      }
-    },  
+      },
+      fur_color: {
+        type: DataTypes.STRING(10),
+        allowNull: false,
+      },
+    },
     {
       charset: "utf8mb4",
       collate: "utf8mb4_bin",

@@ -7,7 +7,6 @@ const dayjs = require("dayjs");
 router.post("/register", isLoggedIn, async (req, res, next) => {
   try {
     const data = req.body;
-    console.log("data : ", data);
     const pet_code = `${data.device_code}_${dayjs().format("YYYYMMDDHHmmss")}`;
     if (data.gender) {
       data.gender = true;
@@ -28,6 +27,7 @@ router.post("/register", isLoggedIn, async (req, res, next) => {
       history: data.history,
       species: data.species,
       admission: data.admission,
+      fur_color: data.fur_color,
     });
 
     res.status(200).send("pet register success");
@@ -76,6 +76,7 @@ router.post("/update", async (req, res, next) => {
       history,
       species,
       admission,
+      fur_color,
     } = req.body;
 
     const gender = originalGender ? true : false;
@@ -93,6 +94,7 @@ router.post("/update", async (req, res, next) => {
         history,
         species,
         admission,
+        fur_color,
       },
       {
         where: { pet_code },
