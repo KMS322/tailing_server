@@ -117,4 +117,28 @@ router.post("/downloadFile", async (req, res, next) => {
   }
 });
 
+router.post("/loadChart", (req, res, next) => {
+  try {
+    const { fileName } = req.body;
+    const device_code = fileName.split("_")[0];
+
+    const currentDay = fileName.split("_")[2].split("-")[0];
+    const filePath = path.join(
+      __dirname,
+      "../data",
+      device_code,
+      currentDay,
+      `creamoff_${fileName}`
+    );
+
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: "파일을 찾을 수 없습니다." });
+    }
+
+    res.sendFile(filePath);
+  } catch (e) {
+    console.error(e);
+    next(e);
+  }
+});
 module.exports = router;
