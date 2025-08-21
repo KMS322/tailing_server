@@ -13,6 +13,7 @@ router.post("/register", isLoggedIn, async (req, res, next) => {
     } else {
       data.gender = false;
     }
+
     const pet = await Pet.create({
       name: data.name,
       birth: data.birth,

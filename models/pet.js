@@ -60,7 +60,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       fur_color: {
         type: DataTypes.STRING(10),
-        allowNull: false,
+        allowNull: true,
       },
     },
     {
