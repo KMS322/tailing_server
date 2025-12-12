@@ -26,8 +26,8 @@ router.post("/create", async (req, res, next) => {
 
     const filePath = path.join(dateDir, filename);
     const filePath2 = path.join(dateDir, filename2);
-    const header = "time,spo2,hr,temp\n";
-    const header2 = "time,cnt,ir,red,green,spo2,hr,temp\n";
+    const header = "time,ir,red,green,spo2,hr,temp\n";
+    const header2 = "time,ir,red,green,spo2,hr,temp\n";
     fs.writeFileSync(filePath, header, "utf8");
     fs.writeFileSync(filePath2, header2, "utf8");
 
@@ -47,8 +47,47 @@ router.post("/create", async (req, res, next) => {
 
 router.post("/send", async (req, res, next) => {
   try {
-    const { data, connectedDevice } = req.body;
-    console.log(`${dayjs().format("mm:ss:SSS")} : ${data.length}`);
+    // 받은 데이터 전체 로깅
+    console.log("=".repeat(50));
+    console.log("받은 데이터:", JSON.stringify(req.body, null, 2));
+    console.log("=".repeat(50));
+
+    // 데이터 구조 확인: req.body.data가 객체인지 배열인지 확인
+    let sampling_rate, start_timestamp, data, hr, spo2, temp, connectedDevice;
+    
+    if (req.body.data && typeof req.body.data === 'object' && !Array.isArray(req.body.data)) {
+      // 새로운 형식: req.body.data가 객체인 경우
+      const dataObj = req.body.data;
+      sampling_rate = dataObj.sampling_rate;
+      start_timestamp = dataObj.start_timestamp;
+      data = dataObj.raw_data || dataObj.data; // raw_data 또는 data 배열
+      hr = dataObj.hr;
+      spo2 = dataObj.spo2;
+      temp = dataObj.temp;
+      connectedDevice = req.body.connectedDevice;
+    } else {
+      // 기존 형식: 최상위 레벨에 있는 경우
+      ({ sampling_rate, start_timestamp, data, hr, spo2, temp, connectedDevice } = req.body);
+    }
+
+    // 필수 데이터 검증
+    if (!data || !Array.isArray(data)) {
+      return res.status(400).json({ error: "data 배열이 필요합니다." });
+    }
+    if (sampling_rate === undefined || sampling_rate === null) {
+      return res.status(400).json({ error: "sampling_rate가 필요합니다." });
+    }
+    if (!start_timestamp) {
+      return res.status(400).json({ error: "start_timestamp가 필요합니다." });
+    }
+    if (!connectedDevice) {
+      return res.status(400).json({ error: "connectedDevice가 필요합니다." });
+    }
+
+    // sampling_rate가 0이면 기본값 사용 (예: 100Hz)
+    const effectiveSamplingRate = sampling_rate > 0 ? sampling_rate : 100;
+    console.log(`${dayjs().format("mm:ss:SSS")} : 데이터 ${data.length}개 수신, 샘플링 레이트: ${effectiveSamplingRate}Hz (원본: ${sampling_rate}Hz)`);
+
     const { startDate, startTime, petCode, deviceCode } = connectedDevice;
 
     const deviceDir = path.join(DATA_DIR, deviceCode);
@@ -58,64 +97,62 @@ router.post("/send", async (req, res, next) => {
     const filePath = path.join(dateDir, filename);
     const filePath2 = path.join(dateDir, filename2);
 
-    // console.log("data : ", data);
+    // 샘플링 간격 계산 (밀리초 단위)
+    const samplingInterval = 1000 / effectiveSamplingRate; // Hz -> ms 간격
 
-    const uniqueDataMap = new Map();
-    // data.forEach((point) => {
-    //   // timestamp를 key로 저장 (문자열이면 문자열 그대로, 객체면 .toISOString() 추천)
-    //   const timeKey = new Date(point.timestamp).toISOString();
-    //   if (!uniqueDataMap.has(timeKey)) {
-    //     uniqueDataMap.set(timeKey, point);
-    //   }
-    // });
-    data.forEach((point) => {
-      if (!uniqueDataMap.has(point.cnt)) {
-        uniqueDataMap.set(point.cnt, point);
-      }
+    // start_timestamp 파싱
+    let startTime_ms;
+    if (start_timestamp.includes(':')) {
+      // HH:mm:ss:SSS 형식
+      const [hours, minutes, seconds, milliseconds] = start_timestamp.split(':').map(Number);
+      startTime_ms = hours * 3600000 + minutes * 60000 + seconds * 1000 + (milliseconds || 0);
+    } else if (start_timestamp.length >= 13) {
+      // 숫자 문자열 형식 (예: "20251212132516735" = YYYYMMDDHHmmssSSS)
+      // 마지막 9자리: HHmmssSSS (시간, 분, 초, 밀리초)
+      const timeStr = start_timestamp.slice(-9);
+      const hours = parseInt(timeStr.slice(0, 2));
+      const minutes = parseInt(timeStr.slice(2, 4));
+      const seconds = parseInt(timeStr.slice(4, 6));
+      const milliseconds = parseInt(timeStr.slice(6, 9));
+      startTime_ms = hours * 3600000 + minutes * 60000 + seconds * 1000 + milliseconds;
+    } else {
+      // 알 수 없는 형식이면 현재 시간 사용
+      const now = dayjs();
+      startTime_ms = now.hour() * 3600000 + now.minute() * 60000 + now.second() * 1000 + now.millisecond();
+      console.warn(`알 수 없는 start_timestamp 형식: ${start_timestamp}, 현재 시간 사용`);
+    }
+
+    // CSV 데이터 생성
+    const csvRows = [];
+    const csvRows2 = [];
+
+    data.forEach((dataPoint, index) => {
+      // 콤마로 구분된 문자열 파싱: "ir,red,green"
+      const [ir, red, green] = dataPoint.split(',');
+
+      // 각 데이터 포인트의 timestamp 계산
+      const currentTime_ms = startTime_ms + (index * samplingInterval);
+      const hrs = Math.floor(currentTime_ms / 3600000) % 24;
+      const mins = Math.floor((currentTime_ms % 3600000) / 60000);
+      const secs = Math.floor((currentTime_ms % 60000) / 1000);
+      const ms = Math.floor(currentTime_ms % 1000);
+
+      const formattedTime = `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}:${ms.toString().padStart(3, '0')}`;
+
+      // 마지막 행(250번째)인 경우 hr, spo2, temp 값 사용, 아니면 0
+      const isLastRow = (index === data.length - 1);
+      const hrValue = isLastRow ? hr : 0;
+      const spo2Value = isLastRow ? spo2 : 0;
+      const tempValue = isLastRow ? temp : 0;
+
+      // 고객용 CSV와 원본 CSV 동일한 형식
+      const csvRow = `${formattedTime},${ir},${red},${green},${spo2Value},${hrValue},${tempValue}`;
+      csvRows.push(csvRow);
+      csvRows2.push(csvRow);
     });
 
-    const filteredData = Array.from(uniqueDataMap.values());
-
-    const csvData =
-      filteredData
-        .map((point) => {
-          const { spo2, hr, temp } = point;
-
-          // 모든 값이 0이면 제외
-          if (spo2 === 0 && hr === 0 && temp === 0) {
-            return null;
-          }
-
-          // 0인 값은 빈칸으로 처리
-          const spo2Str = spo2 === 0 ? "" : spo2;
-          const hrStr = hr === 0 ? "" : hr;
-          const tempStr = temp === 0 ? "" : temp;
-
-          const formattedTimestamp = new Date(
-            point.timestamp
-          ).toLocaleTimeString("ko-KR", {
-            hour12: false,
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit",
-            fractionalSecondDigits: 3,
-          });
-          return `${formattedTimestamp},${spo2Str},${hrStr},${tempStr}`;
-        })
-        .filter(Boolean) // ✅ null 제거: 모두 0인 row는 완전히 제거됨
-        .join("\r\n") + "\r\n";
-    const csvData2 = filteredData
-      .map((point) => {
-        const date = new Date(point.timestamp);
-        const hours = date.getHours().toString().padStart(2, "0");
-        const minutes = date.getMinutes().toString().padStart(2, "0");
-        const seconds = date.getSeconds().toString().padStart(2, "0");
-        const milliseconds = date.getMilliseconds().toString().padStart(3, "0");
-
-        const formattedTimestamp = `${hours}:${minutes}:${seconds}:${milliseconds}`;
-        return `${formattedTimestamp},${point.cnt},${point.ir},${point.red},${point.green},${point.spo2},${point.hr},${point.temp}`;
-      })
-      .join("\n");
+    const csvData = csvRows.join('\r\n') + '\r\n';
+    const csvData2 = csvRows2.join('\n') + '\n';
 
     if (fs.existsSync(filePath)) {
       fs.appendFileSync(filePath, csvData, "utf8");
@@ -194,6 +231,23 @@ router.post("/deleteCSV", async (req, res, next) => {
     res.status(200).send("CSV 파일 삭제 완료");
   } catch (e) {
     console.error("Error deleting CSV:", e);
+    next(e);
+  }
+});
+
+router.post("/test", async (req, res, next) => {
+  try {
+    const { text } = req.body;
+    console.log("=".repeat(50));
+    console.log("테스트 메시지 수신:", text);
+    console.log("=".repeat(50));
+    res.status(200).json({
+      success: true,
+      message: "서버가 메시지를 받았습니다",
+      receivedText: text
+    });
+  } catch (e) {
+    console.error("Error in test route:", e);
     next(e);
   }
 });
