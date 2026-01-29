@@ -54,8 +54,12 @@ router.post("/send", async (req, res, next) => {
 
     // 데이터 구조 확인: req.body.data가 객체인지 배열인지 확인
     let sampling_rate, start_timestamp, data, hr, spo2, temp, connectedDevice;
-    
-    if (req.body.data && typeof req.body.data === 'object' && !Array.isArray(req.body.data)) {
+
+    if (
+      req.body.data &&
+      typeof req.body.data === "object" &&
+      !Array.isArray(req.body.data)
+    ) {
       // 새로운 형식: req.body.data가 객체인 경우
       const dataObj = req.body.data;
       sampling_rate = dataObj.sampling_rate;
@@ -67,7 +71,15 @@ router.post("/send", async (req, res, next) => {
       connectedDevice = req.body.connectedDevice;
     } else {
       // 기존 형식: 최상위 레벨에 있는 경우
-      ({ sampling_rate, start_timestamp, data, hr, spo2, temp, connectedDevice } = req.body);
+      ({
+        sampling_rate,
+        start_timestamp,
+        data,
+        hr,
+        spo2,
+        temp,
+        connectedDevice,
+      } = req.body);
     }
 
     // 필수 데이터 검증
@@ -86,7 +98,11 @@ router.post("/send", async (req, res, next) => {
 
     // sampling_rate가 0이면 기본값 사용 (예: 100Hz)
     const effectiveSamplingRate = sampling_rate > 0 ? sampling_rate : 100;
-    console.log(`${dayjs().format("mm:ss:SSS")} : 데이터 ${data.length}개 수신, 샘플링 레이트: ${effectiveSamplingRate}Hz (원본: ${sampling_rate}Hz)`);
+    console.log(
+      `${dayjs().format("mm:ss:SSS")} : 데이터 ${
+        data.length
+      }개 수신, 샘플링 레이트: ${effectiveSamplingRate}Hz (원본: ${sampling_rate}Hz)`
+    );
 
     const { startDate, startTime, petCode, deviceCode } = connectedDevice;
 
@@ -102,10 +118,16 @@ router.post("/send", async (req, res, next) => {
 
     // start_timestamp 파싱
     let startTime_ms;
-    if (start_timestamp.includes(':')) {
+    if (start_timestamp.includes(":")) {
       // HH:mm:ss:SSS 형식
-      const [hours, minutes, seconds, milliseconds] = start_timestamp.split(':').map(Number);
-      startTime_ms = hours * 3600000 + minutes * 60000 + seconds * 1000 + (milliseconds || 0);
+      const [hours, minutes, seconds, milliseconds] = start_timestamp
+        .split(":")
+        .map(Number);
+      startTime_ms =
+        hours * 3600000 +
+        minutes * 60000 +
+        seconds * 1000 +
+        (milliseconds || 0);
     } else if (start_timestamp.length >= 13) {
       // 숫자 문자열 형식 (예: "20251212132516735" = YYYYMMDDHHmmssSSS)
       // 마지막 9자리: HHmmssSSS (시간, 분, 초, 밀리초)
@@ -114,12 +136,19 @@ router.post("/send", async (req, res, next) => {
       const minutes = parseInt(timeStr.slice(2, 4));
       const seconds = parseInt(timeStr.slice(4, 6));
       const milliseconds = parseInt(timeStr.slice(6, 9));
-      startTime_ms = hours * 3600000 + minutes * 60000 + seconds * 1000 + milliseconds;
+      startTime_ms =
+        hours * 3600000 + minutes * 60000 + seconds * 1000 + milliseconds;
     } else {
       // 알 수 없는 형식이면 현재 시간 사용
       const now = dayjs();
-      startTime_ms = now.hour() * 3600000 + now.minute() * 60000 + now.second() * 1000 + now.millisecond();
-      console.warn(`알 수 없는 start_timestamp 형식: ${start_timestamp}, 현재 시간 사용`);
+      startTime_ms =
+        now.hour() * 3600000 +
+        now.minute() * 60000 +
+        now.second() * 1000 +
+        now.millisecond();
+      console.warn(
+        `알 수 없는 start_timestamp 형식: ${start_timestamp}, 현재 시간 사용`
+      );
     }
 
     // CSV 데이터 생성
@@ -128,19 +157,23 @@ router.post("/send", async (req, res, next) => {
 
     data.forEach((dataPoint, index) => {
       // 콤마로 구분된 문자열 파싱: "ir,red,green"
-      const [ir, red, green] = dataPoint.split(',');
+      const [ir, red, green] = dataPoint.split(",");
 
       // 각 데이터 포인트의 timestamp 계산
-      const currentTime_ms = startTime_ms + (index * samplingInterval);
+      const currentTime_ms = startTime_ms + index * samplingInterval;
       const hrs = Math.floor(currentTime_ms / 3600000) % 24;
       const mins = Math.floor((currentTime_ms % 3600000) / 60000);
       const secs = Math.floor((currentTime_ms % 60000) / 1000);
       const ms = Math.floor(currentTime_ms % 1000);
 
-      const formattedTime = `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}:${ms.toString().padStart(3, '0')}`;
+      const formattedTime = `${hrs.toString().padStart(2, "0")}:${mins
+        .toString()
+        .padStart(2, "0")}:${secs.toString().padStart(2, "0")}:${ms
+        .toString()
+        .padStart(3, "0")}`;
 
       // 마지막 행(250번째)인 경우 hr, spo2, temp 값 사용, 아니면 0
-      const isLastRow = (index === data.length - 1);
+      const isLastRow = index === data.length - 1;
       const hrValue = isLastRow ? hr : 0;
       const spo2Value = isLastRow ? spo2 : 0;
       const tempValue = isLastRow ? temp : 0;
@@ -151,8 +184,8 @@ router.post("/send", async (req, res, next) => {
       csvRows2.push(csvRow);
     });
 
-    const csvData = csvRows.join('\r\n') + '\r\n';
-    const csvData2 = csvRows2.join('\n') + '\n';
+    const csvData = csvRows.join("\r\n") + "\r\n";
+    const csvData2 = csvRows2.join("\n") + "\n";
 
     if (fs.existsSync(filePath)) {
       fs.appendFileSync(filePath, csvData, "utf8");
@@ -244,7 +277,7 @@ router.post("/test", async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: "서버가 메시지를 받았습니다",
-      receivedText: text
+      receivedText: text,
     });
   } catch (e) {
     console.error("Error in test route:", e);
