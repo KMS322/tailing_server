@@ -32,7 +32,7 @@ router.post("/loadData", async (req, res, next) => {
 
     const dataLists = await Promise.all(
       csvLists.map(async (item) => {
-        const currentDay = item.file_name.split("_")[2].split("-")[0];
+        const currentDay = item.file_name.split("_")[1].split("-")[0];
         const filePath = path.join(baseDir, currentDay, item.file_name);
 
         try {
@@ -75,7 +75,7 @@ router.post("/downloadFile", async (req, res, next) => {
     const { fileName, type } = req.body;
     const device_code = fileName.split("_")[0];
     let filePath;
-    const currentDay = fileName.split("_")[2].split("-")[0];
+    const currentDay = fileName.split("_")[1].split("-")[0];
     if (type === "customer") {
       filePath = path.join(
         __dirname,
@@ -122,7 +122,7 @@ router.post("/loadChart", (req, res, next) => {
     const { fileName } = req.body;
     const device_code = fileName.split("_")[0];
 
-    const currentDay = fileName.split("_")[2].split("-")[0];
+    const currentDay = fileName.split("_")[1].split("-")[0];
     const filePath = path.join(
       __dirname,
       "../data",
