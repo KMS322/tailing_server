@@ -46,10 +46,11 @@ app.use(
       "http://98.92.20.155:3000",
       "http://98.92.20.155:3070",
       "http://98.92.20.155:5050",
+      "http://54.172.201.255:3070",
     ],
     // origin: "*",
     credentials: true,
-  })
+  }),
 );
 
 app.use(express.json({ limit: "50mb" }));
