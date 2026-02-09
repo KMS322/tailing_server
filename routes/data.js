@@ -14,6 +14,30 @@ const createDirectoryIfNotExists = (dirPath) => {
   }
 };
 
+let testData = 0;
+router.post("/changeData", async (req, res, next) => {
+  try {
+    const { data } = req.body;
+
+    testData = data;
+    console.log("testData : ", testData);
+    res.status(200).send("changed ok");
+  } catch (e) {
+    console.error(e);
+    next(e);
+  }
+});
+router.get("/serverData", async (req, res, next) => {
+  try {
+    console.log("요청 들어옴");
+
+    res.status(200).json({ data: testData });
+  } catch (e) {
+    console.error(e);
+    next(e);
+  }
+});
+
 router.post("/create", async (req, res, next) => {
   try {
     const { date, time, pet_code, device_code } = req.body;
@@ -49,7 +73,7 @@ router.post("/send", async (req, res, next) => {
   try {
     // 받은 데이터 전체 로깅
     console.log("=".repeat(50));
-    console.log("받은 데이터:", JSON.stringify(req.body, null, 2));
+    // console.log("받은 데이터:", JSON.stringify(req.body, null, 2));
     console.log("=".repeat(50));
 
     // 데이터 구조 확인: req.body.data가 객체인지 배열인지 확인
@@ -101,7 +125,7 @@ router.post("/send", async (req, res, next) => {
     console.log(
       `${dayjs().format("mm:ss:SSS")} : 데이터 ${
         data.length
-      }개 수신, 샘플링 레이트: ${effectiveSamplingRate}Hz (원본: ${sampling_rate}Hz)`
+      }개 수신, 샘플링 레이트: ${effectiveSamplingRate}Hz (원본: ${sampling_rate}Hz)`,
     );
 
     const { startDate, startTime, petCode, deviceCode } = connectedDevice;
@@ -147,7 +171,7 @@ router.post("/send", async (req, res, next) => {
         now.second() * 1000 +
         now.millisecond();
       console.warn(
-        `알 수 없는 start_timestamp 형식: ${start_timestamp}, 현재 시간 사용`
+        `알 수 없는 start_timestamp 형식: ${start_timestamp}, 현재 시간 사용`,
       );
     }
 
@@ -258,7 +282,7 @@ router.post("/deleteCSV", async (req, res, next) => {
         where: {
           file_name: filename,
         },
-      }
+      },
     );
 
     res.status(200).send("CSV 파일 삭제 완료");
