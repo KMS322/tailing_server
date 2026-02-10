@@ -32,7 +32,8 @@ router.post("/loadData", async (req, res, next) => {
 
     const dataLists = await Promise.all(
       csvLists.map(async (item) => {
-        const currentDay = item.file_name.split("_")[1].split("-")[0];
+        const parts = item.file_name.split("_");
+        const currentDay = parts[parts.length - 1].split("-")[0];
         const filePath = path.join(baseDir, currentDay, item.file_name);
 
         try {
@@ -72,10 +73,10 @@ router.post("/loadData", async (req, res, next) => {
 
 router.post("/downloadFile", async (req, res, next) => {
   try {
-    const { fileName, type } = req.body;
-    const device_code = fileName.split("_")[0];
+    const { fileName, type, device_code } = req.body;
     let filePath;
-    const currentDay = fileName.split("_")[1].split("-")[0];
+    const dlParts = fileName.split("_");
+    const currentDay = dlParts[dlParts.length - 1].split("-")[0];
     if (type === "customer") {
       filePath = path.join(
         __dirname,
@@ -119,10 +120,10 @@ router.post("/downloadFile", async (req, res, next) => {
 
 router.post("/loadChart", (req, res, next) => {
   try {
-    const { fileName } = req.body;
-    const device_code = fileName.split("_")[0];
+    const { fileName, device_code } = req.body;
 
-    const currentDay = fileName.split("_")[1].split("-")[0];
+    const chartParts = fileName.split("_");
+    const currentDay = chartParts[chartParts.length - 1].split("-")[0];
     const filePath = path.join(
       __dirname,
       "../data",
