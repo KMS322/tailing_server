@@ -69,6 +69,34 @@ router.post("/create", async (req, res, next) => {
   }
 });
 
+const IMU_HEADER = "timestamp,cnt,ax,ay,az,gx,gy,gz\n";
+
+router.post("/createImu", async (req, res, next) => {
+  try {
+    const { date, time, pet_code, device_code } = req.body;
+    const deviceDir = path.join(DATA_DIR, device_code);
+    const dateDir = path.join(deviceDir, date);
+    const filename = `IMU_${pet_code}_${date}-${time}.csv`;
+    createDirectoryIfNotExists(deviceDir);
+    createDirectoryIfNotExists(dateDir);
+
+    const filePath = path.join(dateDir, filename);
+    fs.writeFileSync(filePath, IMU_HEADER, "utf8");
+
+    await CsvData.create({
+      device_code,
+      pet_code,
+      date,
+      file_name: filename,
+    });
+
+    res.status(200).send("IMU csv 파일 생성 완료");
+  } catch (e) {
+    console.error("Error creating IMU data:", e);
+    next(e);
+  }
+});
+
 router.post("/send", async (req, res, next) => {
   try {
     // 받은 데이터 전체 로깅
@@ -220,6 +248,104 @@ router.post("/send", async (req, res, next) => {
     }
   } catch (e) {
     console.error("Error sending data:", e);
+    next(e);
+  }
+});
+
+// IMU 데이터 수신 → CSV 저장 (파일명 규칙은 기존과 동일: deviceCode/startDate/ 파일명)
+// 데이터 형식: "timestamp,cnt,ax,ay,az,gx,gy,gz" (끝 쉼표 허용)
+// 예: "13:49:20:332,123450,-123.123456,-321.321123,-123.123456,-123.123456,-321.321123,-123.123456,"
+
+router.post("/imu", async (req, res, next) => {
+  try {
+    const body = req.body || {};
+    const connectedDevice = body.connectedDevice || body.connected_device;
+
+    if (!connectedDevice || typeof connectedDevice !== "object") {
+      console.log("IMU 400: connectedDevice 없음. body 키:", Object.keys(body));
+      return res.status(400).json({ error: "connectedDevice가 필요합니다." });
+    }
+
+    // camelCase / snake_case 둘 다 허용
+    const startDate =
+      connectedDevice.startDate ?? connectedDevice.start_date;
+    const startTime =
+      connectedDevice.startTime ?? connectedDevice.start_time;
+    const petCode = connectedDevice.petCode ?? connectedDevice.pet_code;
+    const deviceCode =
+      connectedDevice.deviceCode ?? connectedDevice.device_code;
+
+    if (!startDate || !startTime || !petCode || !deviceCode) {
+      return res.status(400).json({
+        error:
+          "connectedDevice에 startDate, startTime, petCode, deviceCode가 필요합니다.",
+      });
+    }
+
+    // 데이터: data / imuData / payload / imu 등 여러 키 허용. data가 객체면 그 안의 문자열 찾기
+    let payload =
+      body.data ??
+      body.imuData ??
+      body.payload ??
+      body.imu;
+    if (typeof payload === "object" && payload !== null && !Array.isArray(payload)) {
+      payload =
+        payload.line ??
+        payload.imu ??
+        payload.raw ??
+        payload.data ??
+        payload.value;
+    }
+
+    const rawLines = Array.isArray(payload)
+      ? payload.filter((line) => typeof line === "string" && line.trim())
+      : typeof payload === "string" && payload.trim()
+        ? [payload.trim()]
+        : [];
+    if (rawLines.length === 0) {
+      console.log("IMU 400: data 없음. body 키:", Object.keys(body));
+      return res.status(400).json({
+        error: "data(문자열 또는 문자열 배열)가 필요합니다.",
+      });
+    }
+
+    const deviceDir = path.join(DATA_DIR, deviceCode);
+    const dateDir = path.join(deviceDir, startDate);
+    const filename = `IMU_${petCode}_${startDate}-${startTime}.csv`;
+    const filePath = path.join(dateDir, filename);
+
+    createDirectoryIfNotExists(deviceDir);
+    createDirectoryIfNotExists(dateDir);
+
+    const csvRows = [];
+    for (const line of rawLines) {
+      const trimmed = line.trim().replace(/,\s*$/, "");
+      const parts = trimmed.split(",");
+      if (parts.length < 8) continue;
+      const [timestamp, cnt, ax, ay, az, gx, gy, gz] = parts.slice(0, 8);
+      // 값 그대로 저장 (최대 자릿수는 입력 형태 유지)
+      csvRows.push(`${timestamp},${cnt},${ax},${ay},${az},${gx},${gy},${gz}`);
+    }
+    if (csvRows.length === 0) {
+      return res.status(400).json({
+        error: "유효한 IMU 행이 없습니다. 형식: timestamp,cnt,ax,ay,az,gx,gy,gz",
+      });
+    }
+
+    const csvBlock = csvRows.join("\n") + "\n";
+
+    if (!fs.existsSync(filePath)) {
+      fs.writeFileSync(filePath, IMU_HEADER + csvBlock, "utf8");
+    } else {
+      fs.appendFileSync(filePath, csvBlock, "utf8");
+    }
+
+    console.log(
+      `${dayjs().format("mm:ss:SSS")} : IMU 데이터 ${csvRows.length}행 저장 → ${filename}`,
+    );
+    res.status(200).send("imu data saved successfully");
+  } catch (e) {
+    console.error("Error saving IMU data:", e);
     next(e);
   }
 });
