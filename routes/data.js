@@ -50,8 +50,8 @@ router.post("/create", async (req, res, next) => {
 
     const filePath = path.join(dateDir, filename);
     const filePath2 = path.join(dateDir, filename2);
-    const header = "time,ir,red,green,spo2,hr,temp\n";
-    const header2 = "time,ir,red,green,spo2,hr,temp\n";
+    const header = "time,ir,red,green,gyro,spo2,hr,temp\n";
+    const header2 = "time,ir,red,green,gyro,spo2,hr,temp\n";
     fs.writeFileSync(filePath, header, "utf8");
     fs.writeFileSync(filePath2, header2, "utf8");
 
@@ -105,7 +105,7 @@ router.post("/send", async (req, res, next) => {
     console.log("=".repeat(50));
 
     // 데이터 구조 확인: req.body.data가 객체인지 배열인지 확인
-    let sampling_rate, start_timestamp, data, hr, spo2, temp, connectedDevice;
+    let gyro, start_timestamp, data, hr, spo2, temp, connectedDevice;
 
     if (
       req.body.data &&
@@ -114,7 +114,7 @@ router.post("/send", async (req, res, next) => {
     ) {
       // 새로운 형식: req.body.data가 객체인 경우
       const dataObj = req.body.data;
-      sampling_rate = dataObj.sampling_rate;
+      gyro = dataObj.gyro;
       start_timestamp = dataObj.start_timestamp;
       data = dataObj.raw_data || dataObj.data; // raw_data 또는 data 배열
       hr = dataObj.hr;
@@ -124,7 +124,7 @@ router.post("/send", async (req, res, next) => {
     } else {
       // 기존 형식: 최상위 레벨에 있는 경우
       ({
-        sampling_rate,
+        gyro,
         start_timestamp,
         data,
         hr,
@@ -138,8 +138,8 @@ router.post("/send", async (req, res, next) => {
     if (!data || !Array.isArray(data)) {
       return res.status(400).json({ error: "data 배열이 필요합니다." });
     }
-    if (sampling_rate === undefined || sampling_rate === null) {
-      return res.status(400).json({ error: "sampling_rate가 필요합니다." });
+    if (gyro === undefined || gyro === null) {
+      return res.status(400).json({ error: "gyro가 필요합니다." });
     }
     if (!start_timestamp) {
       return res.status(400).json({ error: "start_timestamp가 필요합니다." });
@@ -148,12 +148,12 @@ router.post("/send", async (req, res, next) => {
       return res.status(400).json({ error: "connectedDevice가 필요합니다." });
     }
 
-    // sampling_rate가 0이면 기본값 사용 (예: 100Hz)
-    const effectiveSamplingRate = sampling_rate > 0 ? sampling_rate : 100;
+    // 샘플링 간격은 고정 50Hz(20ms)
+    const samplingInterval = 20;
     console.log(
       `${dayjs().format("mm:ss:SSS")} : 데이터 ${
         data.length
-      }개 수신, 샘플링 레이트: ${effectiveSamplingRate}Hz (원본: ${sampling_rate}Hz)`,
+      }개 수신, 샘플링 간격: ${samplingInterval}ms (gyro: ${gyro})`,
     );
 
     const { startDate, startTime, petCode, deviceCode } = connectedDevice;
@@ -164,9 +164,6 @@ router.post("/send", async (req, res, next) => {
     const filename2 = `creamoff_${petCode}_${startDate}-${startTime}.csv`;
     const filePath = path.join(dateDir, filename);
     const filePath2 = path.join(dateDir, filename2);
-
-    // 샘플링 간격 계산 (밀리초 단위)
-    const samplingInterval = 1000 / effectiveSamplingRate; // Hz -> ms 간격
 
     // start_timestamp 파싱
     let startTime_ms;
@@ -231,7 +228,7 @@ router.post("/send", async (req, res, next) => {
       const tempValue = isLastRow ? temp : 0;
 
       // 고객용 CSV와 원본 CSV 동일한 형식
-      const csvRow = `${formattedTime},${ir},${red},${green},${spo2Value},${hrValue},${tempValue}`;
+      const csvRow = `${formattedTime},${ir},${red},${green},${gyro},${spo2Value},${hrValue},${tempValue}`;
       csvRows.push(csvRow);
       csvRows2.push(csvRow);
     });
